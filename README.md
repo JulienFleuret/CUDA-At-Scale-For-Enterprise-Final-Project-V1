@@ -35,12 +35,12 @@ The CUDA implementation proved relatively straightforward. My main challenge was
 - `-epsilon` or `-eps`: (optional, default: 1e-3) Desired accuracy.
 
 **Note**:
-- If a compiled OpenCV version exists in the `samples_gpa_lib/` folder, the argument is optional, and an image will be randomly selected from `samples_gpa_lib/third_party/opencv/samples/data/`.
+- If a compiled OpenCV version exists in the `samples_gpa_lib/` folder, the `-input_filename` argument is optional, and an image will be randomly selected from `samples_gpa_lib/third_party/opencv/samples/data/`.
 - Providing an output directory will deactivate the display mode.
 
 ### Arguments for `demo2`:
 - `-h`, `-help`, `-usage`, or `-?`: Print help.
-- `-path`, `-folder`,`-fd`,`-input_path`, `-input_folder`, or `-ifd` : (optional, default: empty string) Folder containing the file to open.
+- `-path`, `-folder`,`-fd`,`-input_path`, `-input_folder`, or `-ifd` : (required or optional, if optional default: empty string) Folder containing the file to open.
 - `-output_path`, `-output_folder`, or `-ofd` : (optional, default: empty string) Folder where to write the results.
 - `-N`: (optional, default: 10) Number of images to process.
 - `-flag`: (optional, default: gaussian) Filter kernel to use.
@@ -49,5 +49,7 @@ The CUDA implementation proved relatively straightforward. My main challenge was
 - `-box_width` or `-bw`: (optional, default: 40) Box filter width.
 - `-epsilon` or `-eps`: (optional, default: 1e-3) Desired accuracy.
 
-
+**Note**:
+- If a compiled OpenCV version exists in the `samples_gpa_lib/` folder, the `-input_folder` argument is optional, and N images will be randomly selected from `samples_gpa_lib/third_party/opencv/samples/data/`.
+- Providing an output directory will deactivate the display mode.
 
