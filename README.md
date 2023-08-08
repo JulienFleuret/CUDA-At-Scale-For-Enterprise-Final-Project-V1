@@ -17,10 +17,10 @@ The CUDA implementation proved relatively straightforward. My main challenge was
 
 ## Code Organization
 
-- `cudaGPA/`: Contains all CUDA implementation code. Compilation generates a dynamic library.
-- `neif/`: Holds NPPI implementation code. NEIF (NPPI EXTRA IMAGE FILTERING) generates a dynamic library.
-- `samples_gpa_lib/`: Backend for demo files. Provides a unified interface for both NPPI and CUDA implementations with OpenCV containers. Additionally, it contains OpenCV's and OpenCV CUDA's implementations, along with helper functions for the demonstration executables.
-- `samples/`: Creates two executables, `demo1` and `demo2`. `demo1` applies the Gaussian-Polynomial Approximate Bilateral Filter (GPA-BF) to a single image. It compares the five GPA-BF implementations (OpenCV CPU, OpenCV-OpenCL, OpenCV-CUDA, NPPI, and custom CUDA) using Mean Square Error and displays execution times. `demo2` applies each GPA-BF implementation to a set of images.
+- `cudaGPA/`: Contains all CUDA implementation code. Compilation generates a dynamic library. The compilation of this project will generate a library file named `libcuda_gpabf.so`  and a header file `cuda_gpabf.hpp`, which will be placed in `bin/lib` and `bin/include` respectively.
+- `neif/`: Holds NPPI implementation code. "neif" stand (Nppi Extra Image Filtering) generates a dynamic library. The compilation of this project will generate a library file named `libnppi_extra_image_filtering.so`  and a header file `nppi_extra_image_filtering.hpp`, which will be placed in `bin/lib` and `bin/include` respectively.
+- `samples_gpa_lib/`: Backend for demo files. Provides a unified interface for both NPPI and CUDA implementations with OpenCV containers. Additionally, it contains OpenCV's and OpenCV CUDA's implementations, along with helper functions for the demonstration executables. The compilation of this project will generate a library file named `libgpa.so`  and a header file `gpa.hpp`, which will be placed in `bin/lib` and `bin/include` respectively.
+- `samples/`: Creates two executables, `demo1.exe` and `demo2.exe`. `demo1.exe` applies the Gaussian-Polynomial Approximate Bilateral Filter (GPA-BF) to a single image. It compares the five GPA-BF implementations (OpenCV CPU, OpenCV-OpenCL, OpenCV-CUDA, NPPI, and custom CUDA) using Mean Square Error and displays execution times. `demo2.exe` applies each GPA-BF implementation to a set of images. The executables are created in `bin/app`.
 - `bin/`: Created after compilation of all other projects. Contains a `header` folder and a `library` folder with header and library files from `cudaGPA`, `neif`, and `samples_gpa_lib`. Also includes `demo1` and `demo2` files.
 
 ### Arguments for `demo1`:
