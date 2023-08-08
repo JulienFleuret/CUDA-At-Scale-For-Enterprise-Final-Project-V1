@@ -59,19 +59,15 @@ target_include_directories(cudaGPABF PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/include
 target_include_directories(cudaGPABF PRIVATE ${CUDA_INCLUDE_DIRS} )
 
 
-message("CUDA_LIBS: ${CUDA_LIBRARIES}")
-
-#target_link_libraries(cudaGPABF PRIVATE ${CUDA_LIBRARIES})
 target_link_directories(cudaGPABF PRIVATE ${CUDA_TOOLKIT_ROOT_DIR}/lib64)
 target_link_libraries(cudaGPABF PRIVATE -lcudart)
 
 
-configure_file(${CMAKE_CURRENT_SOURCE_DIR}/include/cuda_gpabf.hpp ${CMAKE_BINARY_DIR}/cudaAtScale/include/cuda_gpabf.hpp COPYONLY)
+configure_file(${CMAKE_CURRENT_SOURCE_DIR}/include/cuda_gpabf.hpp ${CMAKE_SOURCE_DIR}/bin/include/cuda_gpabf.hpp COPYONLY)
 
-set_target_properties(cudaGPABF PROPERTIES LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/cudaAtScale/lib OUTPUT_NAME cuda_gpabf)
+set_target_properties(cudaGPABF PROPERTIES LIBRARY_OUTPUT_DIRECTORY ${CMAKE_SOURCE_DIR}/bin/lib OUTPUT_NAME cuda_gpabf)
 
 
-install(TARGETS cudaGPABF LIBRARY DESTINATION lib)
 
 
 add_custom_command(TARGET cudaGPABF

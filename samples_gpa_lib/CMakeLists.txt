@@ -587,16 +587,16 @@ endif()
     target_include_directories(gpa PRIVATE ${CUDA_INCLUDE_DIRS} )
 
 
-    set_target_properties(gpa PROPERTIES LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/cudaAtScale/samples/gpa/lib OUTPUT_NAME gpa)
+    set_target_properties(gpa PROPERTIES LIBRARY_OUTPUT_DIRECTORY ${CMAKE_SOURCE_DIR}/bin/lib OUTPUT_NAME gpa)
 
 
     install(TARGETS gpa LIBRARY DESTINATION lib ARCHIVE DESTINATION lib RUNTIME DESTINATION bin)
 
 
-    configure_file(${CMAKE_CURRENT_SOURCE_DIR}/include/gpa.hpp ${CMAKE_BINARY_DIR}/cudaAtScale/samples/gpa/include/gpa.hpp COPYONLY)
+    configure_file(${CMAKE_CURRENT_SOURCE_DIR}/include/gpa.hpp ${CMAKE_SOURCE_DIR}/bin/include/gpa.hpp COPYONLY)
 
 
-#    set_target_properties(gpa PROPERTIES ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/cudaAtScale/samples/gpa/lib )
+
     set_target_properties(gpa PROPERTIES LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/cudaAtScale/samples/gpa/lib)
     set_target_properties(gpa PROPERTIES BUILD_WITH_INSTALL_RPATH TRUE INSTALL_RPATH "${OpenCV_INCLUDE_DIRS}/../../lib;${CMAKE_BINARY_DIR}/cudaAtScale/lib")
 

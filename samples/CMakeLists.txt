@@ -1,5 +1,4 @@
-#add_dependencies(cudaAtScaleLib gpa)
-
+project(samples)
 
 file(GLOB SOURCES "../samples_gpa_lib/*")
 
@@ -28,14 +27,15 @@ endif()
     #NEIF -> NPPI EXTRA IMAGE FILTERING, i.e. the lib compile in the first project.
     set(LIB_NEIF_INCLUDE_DIR ${CMAKE_BINARY_DIR}/cudaAtScale/include)
     set(LIB_NEIF_LIB_DIR ${CMAKE_BINARY_DIR}/cudaAtScale/lib)
-#    set(LIB_NEIF_LIB -lnppi_extra_image_filtering -lcuda_gpabf)
 
     set(LIB_GPA_INCLUDE_DIR ${CMAKE_BINARY_DIR}/cudaAtScale/samples/gpa/include)
     set(LIB_GPA_LIB_DIR ${CMAKE_BINARY_DIR}/cudaAtScale/samples/gpa/lib)
     set(LIB_GPA_LIB -lgpa)
 
-    message("OCV_LIBS: ${OpenCV_LIBS}")
-    message("NEIF: ${LIB_NEIF_LIB}")
+
+
+    set(CMAKE_EXECUTABLE_SUFFIX ".exe")
+
 
     file(GLOB DEMO_FILES "${CMAKE_CURRENT_SOURCE_DIR}/sources/*.cpp")
     foreach(sample ${DEMO_FILES})
@@ -46,17 +46,14 @@ endif()
         target_link_directories(${sample_name} PRIVATE ${OpenCV_INCLUDE_DIRS}/../../lib  ${LIB_NEIF_LIB_DIR} ${LIB_GPA_LIB_DIR})
         target_link_libraries(${sample_name} PRIVATE ${OpenCV_LIBS} ${LIB_NEIF_LIB} ${LIB_GPA_LIB})
 
+        set_target_properties(${sample_name} PROPERTIES RUNTIME_OUTPUT_DIRECTORY ${CMAKE_SOURCE_DIR}/bin/app)
+
+
         add_custom_command(TARGET ${sample_name}
             POST_BUILD
             COMMAND ${CMAKE_COMMAND} -E echo "${sample} was built successfully."
         )
 
-        # Install the executable to the bin directory
-#        install(TARGETS ${sample_name} RUNTIME DESTINATION bin)
-
-#        target_include_directories(${sample_name} PRIVATE ${CMAKE_BINARY_DIR}/cudaAtScale/samples/lib_gpa/include)
-#        target_link_directories(${sample_name} PRIVATE ${OpenCV_INCLUDE_DIRS}/../../lib)
-#        target_link_libraries(${sample_name} PRIVATE -lgpa)
 
     endforeach()
 

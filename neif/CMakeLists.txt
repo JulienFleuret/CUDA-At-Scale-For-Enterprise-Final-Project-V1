@@ -15,13 +15,12 @@ target_link_libraries(neif PRIVATE ${CUDA_LIBRARIES})
 target_link_directories(neif PRIVATE ${CUDA_TOOLKIT_ROOT_DIR}/lib64)
 target_link_libraries(neif PRIVATE -lnppc -lnppial -lnppicc -lnppidei -lnppif -lnppig -lnppim -lnppist -lnppisu -lnppitc -lnpps)
 
+configure_file(${CMAKE_CURRENT_SOURCE_DIR}/include/nppi_extra_image_filtering.hpp ${CMAKE_SOURCE_DIR}/bin/include/nppi_extra_image_filtering.hpp COPYONLY)
 
-configure_file(${CMAKE_CURRENT_SOURCE_DIR}/include/nppi_extra_image_filtering.hpp ${CMAKE_BINARY_DIR}/cudaAtScale/include/nppi_extra_image_filtering.hpp COPYONLY)
-
-set_target_properties(neif PROPERTIES LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/cudaAtScale/lib OUTPUT_NAME nppi_extra_image_filtering)
+set_target_properties(neif PROPERTIES LIBRARY_OUTPUT_DIRECTORY ${CMAKE_SOURCE_DIR}/bin/lib OUTPUT_NAME nppi_extra_image_filtering)
 
 
-install(TARGETS neif LIBRARY DESTINATION lib)
+#install(TARGETS neif LIBRARY DESTINATION lib)
 
 
 add_custom_command(TARGET neif
