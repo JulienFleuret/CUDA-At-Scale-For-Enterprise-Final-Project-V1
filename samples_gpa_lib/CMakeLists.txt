@@ -597,10 +597,6 @@ endif()
 
 
 
-    set_target_properties(gpa PROPERTIES LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/cudaAtScale/samples/gpa/lib)
-    set_target_properties(gpa PROPERTIES BUILD_WITH_INSTALL_RPATH TRUE INSTALL_RPATH "${OpenCV_INCLUDE_DIRS}/../../lib;${CMAKE_BINARY_DIR}/cudaAtScale/lib")
-
-
     add_custom_command(TARGET gpa
         POST_BUILD
         COMMAND ${CMAKE_COMMAND} -E echo "libgpa.so was built successfully."
