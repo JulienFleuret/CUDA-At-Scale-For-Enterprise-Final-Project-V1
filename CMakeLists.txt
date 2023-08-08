@@ -3,6 +3,8 @@ cmake_minimum_required(VERSION 3.17)
 
 project(cudaAtScaleLib LANGUAGES CXX)
 
+set(CMAKE_INSTALL_PREFIX /usr/local/cudaAtScale)
+
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
@@ -35,17 +37,6 @@ add_dependencies(demo1 gpa)
 add_dependencies(demo2 gpa)
 
 
-#if(NOT EXISTS ${CMAKE_BINARY_DIR}/cudaAtScale)
-#    # Create the deployment directory
-#    file(MAKE_DIRECTORY ${CMAKE_BINARY_DIR}/cudaAtScale)
-#    file(MAKE_DIRECTORY ${CMAKE_BINARY_DIR}/cudaAtScale/include)
-#    file(MAKE_DIRECTORY ${CMAKE_BINARY_DIR}/cudaAtScale/lib)
-#endif()
-
-
-
-# samples, samples_gpa_lib, sources
-# sources, samples_gpa_lib, samples
 
 
 

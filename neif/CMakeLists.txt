@@ -22,6 +22,9 @@ set_target_properties(neif PROPERTIES LIBRARY_OUTPUT_DIRECTORY ${CMAKE_SOURCE_DI
 
 #install(TARGETS neif LIBRARY DESTINATION lib)
 
+install(TARGETS neif LIBRARY DESTINATION lib PERMISSIONS OWNER_READ OWNER_WRITE GROUP_READ WORLD_READ)
+install(FILES ${CMAKE_CURRENT_SOURCE_DIR}/include/nppi_extra_image_filtering.hpp DESTINATION include)
+
 
 add_custom_command(TARGET neif
     POST_BUILD

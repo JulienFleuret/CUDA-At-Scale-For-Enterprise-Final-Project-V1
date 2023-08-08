@@ -68,7 +68,8 @@ configure_file(${CMAKE_CURRENT_SOURCE_DIR}/include/cuda_gpabf.hpp ${CMAKE_SOURCE
 set_target_properties(cudaGPABF PROPERTIES LIBRARY_OUTPUT_DIRECTORY ${CMAKE_SOURCE_DIR}/bin/lib OUTPUT_NAME cuda_gpabf)
 
 
-
+install(TARGETS cudaGPABF LIBRARY DESTINATION lib)
+install(FILES ${CMAKE_CURRENT_SOURCE_DIR}/include/cuda_gpabf.hpp DESTINATION include)
 
 add_custom_command(TARGET cudaGPABF
     POST_BUILD

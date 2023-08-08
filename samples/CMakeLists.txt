@@ -25,11 +25,8 @@ endif()
 
 
     #NEIF -> NPPI EXTRA IMAGE FILTERING, i.e. the lib compile in the first project.
-    set(LIB_NEIF_INCLUDE_DIR ${CMAKE_BINARY_DIR}/cudaAtScale/include)
-    set(LIB_NEIF_LIB_DIR ${CMAKE_BINARY_DIR}/cudaAtScale/lib)
-
-    set(LIB_GPA_INCLUDE_DIR ${CMAKE_BINARY_DIR}/cudaAtScale/samples/gpa/include)
-    set(LIB_GPA_LIB_DIR ${CMAKE_BINARY_DIR}/cudaAtScale/samples/gpa/lib)
+    set(LIB_GPA_INCLUDE_DIR ${CMAKE_SOURCE_DIR}/bin/include)
+    set(LIB_GPA_LIB_DIR ${CMAKE_SOURCE_DIR}/bin/lib)
     set(LIB_GPA_LIB -lgpa)
 
 
@@ -42,11 +39,13 @@ endif()
         get_filename_component(sample_name ${sample} NAME_WE)
         add_executable(${sample_name} ${sample})
 
-        target_include_directories(${sample_name} PRIVATE ${OpenCV_INCLUDE_DIRS} ${LIB_NEIF_INCLUDE_DIR} ${LIB_GPA_INCLUDE_DIR} ${CUDA_INCLUDE_DIRS})
-        target_link_directories(${sample_name} PRIVATE ${OpenCV_INCLUDE_DIRS}/../../lib  ${LIB_NEIF_LIB_DIR} ${LIB_GPA_LIB_DIR})
-        target_link_libraries(${sample_name} PRIVATE ${OpenCV_LIBS} ${LIB_NEIF_LIB} ${LIB_GPA_LIB})
+        target_include_directories(${sample_name} PRIVATE ${OpenCV_INCLUDE_DIRS} ${LIB_GPA_INCLUDE_DIR} ${CUDA_INCLUDE_DIRS})
+        target_link_directories(${sample_name} PRIVATE ${OpenCV_INCLUDE_DIRS}/../../lib  ${LIB_GPA_LIB_DIR} )
+        target_link_libraries(${sample_name} PRIVATE ${OpenCV_LIBS} ${LIB_GPA_LIB})
 
         set_target_properties(${sample_name} PROPERTIES RUNTIME_OUTPUT_DIRECTORY ${CMAKE_SOURCE_DIR}/bin/app)
+
+        install(FILES ${CMAKE_SOURCE_DIR}/bin/app/${sample_name}.exe DESTINATION app)
 
 
         add_custom_command(TARGET ${sample_name}

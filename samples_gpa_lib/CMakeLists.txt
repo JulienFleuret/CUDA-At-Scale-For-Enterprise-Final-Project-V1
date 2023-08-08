@@ -579,8 +579,8 @@ endif()
 
 
     # NEIF (NPPI EXTRA IMAGE FILTERING) + CUDA_GPABF
-    target_include_directories(gpa PRIVATE ${CMAKE_BINARY_DIR}/cudaAtScale/include)
-    target_link_directories(gpa PRIVATE ${CMAKE_BINARY_DIR}/cudaAtScale/lib)
+    target_include_directories(gpa PRIVATE ${CMAKE_SOURCE_DIR}/bin/include)
+    target_link_directories(gpa PRIVATE ${CMAKE_SOURCE_DIR}/bin/lib)
     target_link_libraries(gpa PRIVATE -lnppi_extra_image_filtering -lcuda_gpabf)
 
     # CUDA
@@ -590,7 +590,9 @@ endif()
     set_target_properties(gpa PROPERTIES LIBRARY_OUTPUT_DIRECTORY ${CMAKE_SOURCE_DIR}/bin/lib OUTPUT_NAME gpa)
 
 
-    install(TARGETS gpa LIBRARY DESTINATION lib ARCHIVE DESTINATION lib RUNTIME DESTINATION bin)
+    install(TARGETS gpa LIBRARY DESTINATION lib)
+    install(FILES ${CMAKE_CURRENT_SOURCE_DIR}/include/gpa.hpp DESTINATION include)
+
 
 
     configure_file(${CMAKE_CURRENT_SOURCE_DIR}/include/gpa.hpp ${CMAKE_SOURCE_DIR}/bin/include/gpa.hpp COPYONLY)
