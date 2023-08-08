@@ -1,7 +1,7 @@
 #include "gpa.hpp"
 #include "test.utils.hpp"
-
-
+#include <regex>
+#include <fstream>
 
 using namespace cv;
 using namespace test;
@@ -9,7 +9,9 @@ using namespace test;
 int main(int argc, char* argv[])
 {
 
-    auto [folder, filename, flag, sigma_range, sigma_spatial_or_box_width, epsilon] = parseInputsDemo1(argc, argv);
+    auto [input_folder, input_filename, output_folder, flag, sigma_range, sigma_spatial_or_box_width, epsilon] = parseInputsDemo1(argc, argv);
+
+    bool display = true;
 
     if(epsilon <= std::numeric_limits<double>::epsilon())
     {
@@ -17,16 +19,28 @@ int main(int argc, char* argv[])
         return EXIT_SUCCESS;
     }
 
-    if(!cv::utils::fs::exists(folder))
-        CV_Error(cv::Error::StsError, "The specified folder does not exists!");
+    // Check Inputs.
+    if(!cv::utils::fs::exists(input_folder))
+        CV_Error(cv::Error::StsError, "The specified input_folder does not exists!");
 
-    if(!cv::utils::fs::exists(filename) && cv::utils::fs::exists(cv::utils::fs::join(folder, filename)))
-        filename = cv::utils::fs::join(folder, filename);
+    if(!cv::utils::fs::exists(input_filename) && cv::utils::fs::exists(cv::utils::fs::join(input_folder, input_filename)))
+        input_filename = cv::utils::fs::join(input_folder, input_filename);
 
-    if(!cv::utils::fs::exists(filename) )
-        CV_Error(cv::Error::StsError, "The specified filename does not exists!");
+    if(!cv::utils::fs::exists(input_filename) )
+        CV_Error(cv::Error::StsError, "The specified input_filename does not exists!");
 
-    cv::Mat img_host = imread(filename, IMREAD_UNCHANGED);
+    // Prepare outputs
+    if(!output_folder.empty())
+    {
+        if(!cv::utils::fs::exists(output_folder))
+        {
+            cv::utils::fs::createDirectories(output_folder);
+        }
+
+        display = false;
+    }
+
+    cv::Mat img_host = imread(input_filename, IMREAD_UNCHANGED);
 
     if((img_host.depth() != CV_8U) && (img_host.depth() != CV_16U) && (img_host.depth() != CV_16S) && (img_host.depth() != CV_32F))
     {
@@ -34,48 +48,115 @@ int main(int argc, char* argv[])
         return EXIT_SUCCESS;
     }
 
-    if(!img_host.empty())
-        std::cout<<"Size: "<<img_host.size()<<" depth: "<<img_host.depth()<<" channels: "<<img_host.channels()<<std::endl;
-
     cv::Mat dst;
     cv::UMat usrc;
     cv::cuda::GpuMat img_device;
     cv::cuda::Stream stream;
 
-    cv::imshow("Source", img_host);
-
     if(img_host.empty())
         return EXIT_SUCCESS;
 
-    // First generate the reference.
+    if(display)
+    {
+        cv::imshow("Source", img_host);
 
-    dst = test_fun<false, false>(img_host, dst, sigma_range, sigma_spatial_or_box_width, flag, epsilon);
+        // First generate the reference.
 
-    // Prepare Test with OpenCL (TAPI).
+        dst = test_fun<true, false, false>(img_host, dst, sigma_range, sigma_spatial_or_box_width, flag, epsilon);
 
-    img_host.copyTo(usrc);
+        // Prepare Test with OpenCL (TAPI).
 
-    test_fun<false, false>(usrc, dst, sigma_range, sigma_spatial_or_box_width, flag, epsilon);
+        img_host.copyTo(usrc);
 
-    // Prepare Test with CUDA.
+        test_fun<true, false, false>(usrc, dst, sigma_range, sigma_spatial_or_box_width, flag, epsilon);
 
-    img_device.upload(img_host, stream);
+        // Prepare Test with CUDA.
 
-    test_fun<false, false>(img_device, dst, sigma_range, sigma_spatial_or_box_width, flag, epsilon);
+        img_device.upload(img_host, stream);
 
-    // Prepare Test with NPPI.
+        test_fun<true, false, false>(img_device, dst, sigma_range, sigma_spatial_or_box_width, flag, epsilon);
 
-    img_device.upload(img_host, stream);
+        // Prepare Test with NPPI.
 
-    test_fun<true, false>(img_device, dst, sigma_range, sigma_spatial_or_box_width, flag, epsilon);
+        test_fun<true, true, false>(img_device, dst, sigma_range, sigma_spatial_or_box_width, flag, epsilon);
 
-    // Prepare Test with CAS.
+        // Prepare Test with CAS.
 
-    img_device.upload(img_host, stream);
+        test_fun<true, false, true>(img_device, dst, sigma_range, sigma_spatial_or_box_width, flag, epsilon);
 
-    test_fun<false, true>(img_device, dst, sigma_range, sigma_spatial_or_box_width, flag, epsilon);
+        cv::waitKey(-1);
+    }
+    else
+    {
+        // Prepare a report.
+        std::ofstream report(utils::fs::join(output_folder, "report.txt"));
 
-    cv::waitKey(-1);
+        std::vector<std::tuple<String, Mat> > dsts;
+
+        auto default_stream = std::cout.rdbuf(report.rdbuf());
+
+        dsts.reserve(6);
+
+        dsts.push_back(std::make_tuple("Source", img_host));
+
+        // First generate the reference.
+
+        dst = test_fun<false, false, false>(img_host, dst, sigma_range, sigma_spatial_or_box_width, flag, epsilon);
+
+        dsts.push_back(std::make_tuple("OpenCV_CPU", dst));
+
+        // Prepare Test with OpenCL (TAPI).
+
+        img_host.copyTo(usrc);
+
+        auto udst = test_fun<false, false, false>(usrc, dst, sigma_range, sigma_spatial_or_box_width, flag, epsilon);
+
+        udst.copyTo(dst);
+
+        dsts.push_back(std::make_tuple("OpenCV_OpenCL", dst));
+
+        // Prepare Test with CUDA.
+
+        img_device.upload(img_host, stream);
+
+        auto gdst = test_fun<false, false, false>(img_device, dst, sigma_range, sigma_spatial_or_box_width, flag, epsilon);
+
+        gdst.download(dst);
+
+        dsts.push_back(std::make_tuple("OpenCV_CUDA_only", dst));
+
+        // Prepare Test with NPPI.
+
+        gdst = test_fun<false, true, false>(img_device, dst, sigma_range, sigma_spatial_or_box_width, flag, epsilon);
+
+        gdst.download(dst);
+
+        dsts.push_back(std::make_tuple("NPPI", dst));
+
+        // Prepare Test with CAS.
+
+        gdst = test_fun<false, false, true>(img_device, dst, sigma_range, sigma_spatial_or_box_width, flag, epsilon);
+
+        gdst.download(dst);
+
+        dsts.push_back(std::make_tuple("CUDA_custom", dst));
+
+        // Save the report.
+        report.close();
+
+        // Reset the stream to its default value.
+        std::cout.rdbuf(default_stream);
+
+
+        auto [extensionless, extention] = get_extensionless_filename_and_extension(input_filename);
+
+        // Save all the images.
+        for(auto& [name, obj] : dsts)
+            imwrite(utils::fs::join(output_folder, extensionless + "_" + name + "." + extention), obj);
+
+    }
+
+
 
 
     return EXIT_SUCCESS;

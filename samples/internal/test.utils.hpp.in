@@ -10,7 +10,11 @@
 #include <unordered_set>
 #include <vector>
 #include <tuple>
+#include <regex>
 
+///
+/// \brief The has_opencv_cuda class : helper class, avoid have too many #if, ... in the code.
+///
 #ifdef HAVE_CUDA
 struct has_opencv_cuda : std::true_type {};
 #else
@@ -30,7 +34,9 @@ namespace test
 
 namespace
 {
-
+///
+/// \brief The test_fun_helper_t class : helper structure to manage the 5 situations.
+///
 template<class T, bool use_nppi, bool use_cas>
 struct test_fun_helper_t
 {
@@ -73,7 +79,18 @@ struct test_fun_helper_t
 
 } // anonymous
 
-template<bool use_nppi, bool use_cas, class T>
+///
+/// \brief test_fun : testing function.
+/// \param img : image to process.
+/// \param img_ref : reference image.
+/// \param sigma_range : variance of the range kernel.
+/// \param sigma_spatial_or_box_width : sigma_spatial_or_box_width: variance of the spatial kernel or width of the box kernel depending on the flag.
+/// \param flag : Gaussian or Box filter to use in order to blur the data.
+/// \param eps : desired accuracy.
+/// \param idx : image number (demo2)
+/// \return processed image.
+///
+template<bool display, bool use_nppi, bool use_cas, class T>
 T test_fun(const T& img, const Mat& img_ref, const double& sigma_range, const double& sigma_spatial_or_box_width, const GPA_FLAG& flag, const double& eps, const int& idx = -1)
 {
     Ptr<quality::QualityMSE> metric;
@@ -102,7 +119,8 @@ T test_fun(const T& img, const Mat& img_ref, const double& sigma_range, const do
     {
         std::cout<<"Computation time OpenCV CPU: "<<" : "<<tic.getTimeMilli()<<" ms"<<std::endl;
         std::cout<<"Error With The Reference: None Because It is The Reference."<<std::endl;
-        imshow(idx < 0 ? "OpenCV CPU" : "OpenCV CPU " + std::to_string(idx), dst);
+        if constexpr(display)
+            imshow(idx < 0 ? "OpenCV CPU" : "OpenCV CPU " + std::to_string(idx), dst);
     }
     else if constexpr(std::is_same<T, UMat>())
     {
@@ -111,7 +129,8 @@ T test_fun(const T& img, const Mat& img_ref, const double& sigma_range, const do
         dst.copyTo(tmp);
         std::cout<<"Computation time OpenCV OpenCL: "<<tic.getTimeMilli()<<" ms"<<std::endl;
         std::cout<<"Error With The Reference: "<<metric->compute(tmp)<<std::endl;
-        imshow(idx < 0 ? "OpenCV OpenCL" :  "OpenCV OpenCL " + std::to_string(idx), tmp);
+        if constexpr(display)
+            imshow(idx < 0 ? "OpenCV OpenCL" :  "OpenCV OpenCL " + std::to_string(idx), tmp);
     }
     else
     {
@@ -132,45 +151,69 @@ T test_fun(const T& img, const Mat& img_ref, const double& sigma_range, const do
 
         std::cout<<"Error With The Reference: "<<metric->compute(tmp)<<std::endl;
 
-        if constexpr (use_nppi)
+        if constexpr (display)
         {
-            imshow(idx < 0 ? "NPPI" : "NPPI " + std::to_string(idx), tmp);
-        }
-        else if constexpr(use_cas)
-        {
-            imshow(idx < 0 ? "CAS" : "CAS " + std::to_string(idx), tmp);
-        }
-        else
-        {
-            imshow(idx < 0 ? "OpenCV CUDA" : "OpenCV CUDA " + std::to_string(idx), tmp);
+            if constexpr (use_nppi)
+            {
+                imshow(idx < 0 ? "NPPI" : "NPPI " + std::to_string(idx), tmp);
+            }
+            else if constexpr(use_cas)
+            {
+                imshow(idx < 0 ? "CAS" : "CAS " + std::to_string(idx), tmp);
+            }
+            else
+            {
+                imshow(idx < 0 ? "OpenCV CUDA" : "OpenCV CUDA " + std::to_string(idx), tmp);
+            }
         }
     }
 
     return dst;
 }
 
+///
+/// \brief getDefaultPath : return the default path to the OpenCV's Legacy samples data, or an empty string.
+/// \return path to the OpenCV's Legacy samples data, or an empty string.
+///
 constexpr const char* getDefaultPath()
 {
     return "@OCV_SAMPLE_DATA@";
 }
 
+///
+/// \brief shouldPathBeMandatory : if the third parties where compile or not
+/// \return true of false depending of the context.
+///
 constexpr bool shouldPathBeMandatory()
 {
     return @MANDATORY_PATH@;
 }
 
+///
+/// \brief getCommandLineKeysDemo1 : return the option for demo1
+/// \return reference keys.
+///
 constexpr const char* getCommandLineKeysDemo1()
 {
-    return "{help h usage ? | | print this message}{@MAKE_PATH_MANDATORY@path | | folder to where to select the images}{filename | | image to process (by default an image will be randomly selected)}{flag |gaussian| gaussian or box}{sigma_range |40 | range kernel standard deviation}{sigma_space |4. | spatial kernel standard deviation. Used if flag is set to 'gaussian'}{box_width |40 | box filter width. Used if flag is set to 'box'}{epsilon |1e-3| desired accuracy.}";	
+    return "{help h usage ? | | print this message}{path folder fd input_path input_folder ifd| | folder to where to select the images}{filename f input_filename if| | image to process (by default an image will be randomly selected)}{flag |gaussian| gaussian or box}{sigma_range sr |40 | range kernel standard deviation}{sigma_space sp |4. | spatial kernel standard deviation. Used if flag is set to 'gaussian'}{box_width bw |40 | box filter width. Used if flag is set to 'box'}{epsilon eps |1e-3| desired accuracy.}{output_path output_folder ofd | | folder to write the outputs images}";
 }
 
+///
+/// \brief getCommandLineKeysDemo2 : return the option for demo2
+/// \return reference keys.
+///
 constexpr const char* getCommandLineKeysDemo2()
 {
-    return "{help h usage ? | | print this message}{@MAKE_PATH_MANDATORY@path | | folder to where to select the images}{N |10 | number of images to proces}{flag |gaussian| gaussian or box}{sigma_range |40 | range kernel standard deviation}{sigma_space |4. | spatial kernel standard deviation. Used if flag is set to 'gaussian'}{box_width |40 | box filter width. Used if flag is set to 'box'}{epsilon |1e-3| desired accuracy.}";	
+    return "{help h usage ? | | print this message}{path folder fd input_path input_folder ifd| | folder to where to select the images}{N |10 | number of images to proces}{flag |gaussian| gaussian or box}{sigma_range |40 | range kernel standard deviation}{sigma_space |4. | spatial kernel standard deviation. Used if flag is set to 'gaussian'}{box_width |40 | box filter width. Used if flag is set to 'box'}{epsilon |1e-3| desired accuracy.}{output_path output_folder ofd | | folder to write the outputs images}";
 }
 
 
-
+///
+/// \brief getAnImageRandomly : return a filename selected randomly among N.
+/// Note there is no image filename available, an empty string is returned.
+/// \param path : folder to parse for filnames.
+/// \return a filename.
+///
 String getAnImageRandomly(const String& path)
 {
     using namespace utils::fs;
@@ -179,9 +222,9 @@ String getAnImageRandomly(const String& path)
 
     std::vector<std::string> filenames;
 
-    std::vector extensions = {"*.jpg", "*.png"};
+    constexpr const char* extensions[] = {"*.jpg", "*.png"};
 
-    for(const auto& extension : extensions)
+    for(const char* extension : extensions)
     {
         std::vector<String> tmp;
 
@@ -189,12 +232,22 @@ String getAnImageRandomly(const String& path)
 
         filenames.insert(filenames.end(), tmp.begin(), tmp.end());
     }
+    
+    if(filenames.empty())
+    	return String();
 
     int idx = rng.uniform(0, static_cast<int>(filenames.size()));
 
     return filenames.at(idx);
 }
 
+///
+/// \brief getNImagesRandomly : return N image filenames, randomly selected, from the specified folder.
+/// If there is less than N filenames, all filenames available will be returned.
+/// \param path : path of the folder to parse.
+/// \param N : number of filenames to return
+/// \return a vector containing N filenames or all available filenames.
+///
 std::vector<String> getNImagesRandomly(const String& path, const int& N)
 {
 
@@ -202,9 +255,9 @@ std::vector<String> getNImagesRandomly(const String& path, const int& N)
 
     std::vector<std::string> filenames;
 
-    std::vector extensions = {"*.jpg", "*.png"};
+    constexpr const char* extensions[] = {"*.jpg", "*.png"};
 
-    for(const auto& extension : extensions)
+    for(const char* extension : extensions)
     {
         std::vector<String> tmp;
 
@@ -235,15 +288,21 @@ std::vector<String> getNImagesRandomly(const String& path, const int& N)
 namespace
 {
 
-
-std::tuple<String, String, int, GPA_FLAG, double, double, double> parseInputs(const int& argc, char*const argv[], const char* keys)
+///
+/// \brief parseInputs : template parsing function
+/// \param argc : number of elements to parse + 1
+/// \param argv : filename + arguments to parse.
+/// \param keys : reference on the arguments to parse
+/// \return a tuple containing the values for both demo1 and demo2.
+///
+std::tuple<String, String, String, int, GPA_FLAG, double, double, double> parseInputs(const int& argc, char*const argv[], const char* keys)
 {
     cv::CommandLineParser parser(argc, argv, keys);
 	
     if(parser.has("h") || parser.has("help") || parser.has("usage"))
-        return std::make_tuple("", "", -1, GPA_FLAG::BOX, 0., 0., 0.);
+        return std::make_tuple("", "", "", -1, GPA_FLAG::BOX, 0., 0., 0.);
 	
-    String path, filename;
+    String input_path, output_path, input_filename;
     int N(-1);
     double sigma_range, sigma_spatial_or_box_width, epsilon;
     GPA_FLAG flag = GPA_FLAG::GAUSSIAN;
@@ -252,7 +311,7 @@ std::tuple<String, String, int, GPA_FLAG, double, double, double> parseInputs(co
 
     try 
     {
-        parser.has("filename");
+        parser.has("input_filename");
     }
     catch (const cv::Exception& err)
     {
@@ -260,16 +319,19 @@ std::tuple<String, String, int, GPA_FLAG, double, double, double> parseInputs(co
         is_demo1 = false;
     }
 
-    path = parser.get<String>("@MAKE_PATH_MANDATORY@path");
-    
-    if(path.empty())
-        path = getDefaultPath();
+
+    input_path = parser.get<String>("input_path");
+    output_path = parser.get<String>("output_path");
+
+    if(input_path.empty())
+        input_path = getDefaultPath();
     
     if(is_demo1)
     {
-	filename = parser.get<String>("filename");
-        if(filename.empty())
-	    filename = getAnImageRandomly(path);
+        input_filename = parser.get<String>("input_filename");
+        if(input_filename.empty())
+            input_filename = getAnImageRandomly(input_path);
+
     }
     else
         N = parser.get<int>("N");
@@ -288,30 +350,62 @@ std::tuple<String, String, int, GPA_FLAG, double, double, double> parseInputs(co
     
     epsilon = parser.get<double>("epsilon");
     
-    return std::make_tuple(path, filename, N, flag, sigma_range, sigma_spatial_or_box_width, epsilon);
+    return std::make_tuple(input_path, input_filename, output_path, N, flag, sigma_range, sigma_spatial_or_box_width, epsilon);
 } 
 
 } // anonymous
 
-std::tuple<String, String, GPA_FLAG, double, double, double> parseInputsDemo1(const int& argc, char*const argv[])
+///
+/// \brief parseInputsDemo1 : parse the input arguments of demo1
+/// \param argc : number of elements to parse + 1
+/// \param argv : filename + arguments to parse.
+/// \return a tuple containing the valid arguments for demo1
+///
+inline std::tuple<String, String, String, GPA_FLAG, double, double, double> parseInputsDemo1(const int& argc, char*const argv[])
 {
-    auto [path, filename, N, flag, sigma_range, sigma_spatial_or_box_width, epsilon] = parseInputs(argc, argv, getCommandLineKeysDemo1());
+    auto [input_path, input_filename, output_path, N, flag, sigma_range, sigma_spatial_or_box_width, epsilon] = parseInputs(argc, argv, getCommandLineKeysDemo1());
 
     (void)N;
 
-    return std::make_tuple(path, filename, flag, sigma_range, sigma_spatial_or_box_width, epsilon);
+    return std::make_tuple(input_path, input_filename, output_path, flag, sigma_range, sigma_spatial_or_box_width, epsilon);
 }
 
-std::tuple<String, int, GPA_FLAG, double, double, double> parseInputsDemo2(const int& argc, char*const argv[])
+///
+/// \brief parseInputsDemo2 : parse the input arguments of demo2
+/// \param argc : number of elements to parse + 1
+/// \param argv : filename + arguments to parse.
+/// \return a tuple containing the valid arguments for demo2
+///
+inline std::tuple<String, String, int, GPA_FLAG, double, double, double> parseInputsDemo2(const int& argc, char*const argv[])
 {
-    auto [path, filename, N, flag, sigma_range, sigma_spatial_or_box_width, epsilon] = parseInputs(argc, argv, getCommandLineKeysDemo2());
+    auto [input_path, input_filename, output_path, N, flag, sigma_range, sigma_spatial_or_box_width, epsilon] = parseInputs(argc, argv, getCommandLineKeysDemo2());
 
-    (void)filename;
+    (void)input_filename;
 
-    return std::make_tuple(path, N, flag, sigma_range, sigma_spatial_or_box_width, epsilon);
+    return std::make_tuple(input_path, output_path, N, flag, sigma_range, sigma_spatial_or_box_width, epsilon);
 }
 
+///
+/// \brief get_extensionless_filename_and_extension
+/// \param input_filename : filename to process
+/// \return a tuple of 2 elements, the first element is the filename without its extension, while the second element is the extension.
+///
+inline std::tuple<String, String> get_extensionless_filename_and_extension(const String& input_filename)
+{
+        String extensionless, extension;
 
+        std::regex pattern("/");
+
+        std::vector<String> path_elements(std::sregex_token_iterator(input_filename.begin(), input_filename.end(), pattern, -1), std::sregex_token_iterator());
+
+        extensionless = path_elements.back();
+
+        extension = extensionless.substr(extensionless.size() - 3, 3);
+
+        extensionless.erase(extensionless.size() - 4, 4);
+        
+        return std::make_tuple(extensionless, extension);
+}
 
 } // test
 
