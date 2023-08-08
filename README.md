@@ -25,19 +25,23 @@ The CUDA implementation proved relatively straightforward. My main challenge was
 
 ### Arguments for `demo1`:
 - `-h`, `-help`, `-usage`, or `-?`: Print help.
-- `-path`, `-folder`, or `-fd`: (optional) Folder containing the file to open.
-- `-filename` or `-f`: (optional or required) Filename of the file to open.
+- `-path`, `-folder`,`-fd`,`-input_path`, `-input_folder`, or `-ifd` : (optional, default: empty string) Folder containing the file to open.
+- `-filename`, `-f`, `-input_filename`, or `-if`: (optional or required) Filename of the file to open.
+- `-output_path`, `-output_folder`, or `-ofd` : (optional, default: empty string) Folder where to write the results.
 - `-flag`: (optional, default: gaussian) Filter kernel to use.
 - `-sigma_range` or `-sr`: (optional, default: 40.0) Range kernel standard deviation.
 - `-sigma_spatial` or `-sp`: (optional, default: 4.0) Spatial kernel standard deviation.
 - `-box_width` or `-bw`: (optional, default: 40) Box filter width.
 - `-epsilon` or `-eps`: (optional, default: 1e-3) Desired accuracy.
 
-If a compiled OpenCV version exists in the `samples_gpa_lib/` folder, the argument is optional, and an image will be randomly selected from `samples_gpa_lib/third_party/opencv/samples/data/`.
+**Note**:
+- If a compiled OpenCV version exists in the `samples_gpa_lib/` folder, the argument is optional, and an image will be randomly selected from `samples_gpa_lib/third_party/opencv/samples/data/`.
+- Providing an output directory will deactivate the display mode.
 
 ### Arguments for `demo2`:
 - `-h`, `-help`, `-usage`, or `-?`: Print help.
-- `-path`, `-folder`, or `-fd`: (optional) Folder containing the file to open.
+- `-path`, `-folder`,`-fd`,`-input_path`, `-input_folder`, or `-ifd` : (optional, default: empty string) Folder containing the file to open.
+- `-output_path`, `-output_folder`, or `-ofd` : (optional, default: empty string) Folder where to write the results.
 - `-N`: (optional, default: 10) Number of images to process.
 - `-flag`: (optional, default: gaussian) Filter kernel to use.
 - `-sigma_range` or `-sr`: (optional, default: 40.0) Range kernel standard deviation.
