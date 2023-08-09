@@ -1,2 +1,0 @@
-#use_cache "/media/smile/3FA6E701592EA94E/prog/cudaAtScaleLib/gpa/third_party/opencv/.cache"
-#match_hash_in_cmake_cache "OCV_DOWNLOAD_IPPICV_HASH_3rdparty_ippicv_ippicv_2021_8_lnx_intel64_20230330_general_tgz"
