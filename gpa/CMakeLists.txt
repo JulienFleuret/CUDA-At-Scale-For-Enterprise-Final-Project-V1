@@ -8,6 +8,13 @@ set(BUILD_THIRD_PARTIES ON)
 if(BUILD_THIRD_PARTIES)
 
     if(NOT EXISTS ${CMAKE_CURRENT_SOURCE_DIR}/third_party OR NOT EXISTS ${CMAKE_CURRENT_SOURCE_DIR}/third_party/deploy)
+        set(BUILD_LOCAL_OCV True)
+    else()
+        set(BUILD_LOCAL_OCV False)
+    endif()
+
+
+    if(BUILD_LOCAL_OCV)
 
         # Create the third party directory
         file(MAKE_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/third_party)
@@ -16,48 +23,57 @@ if(BUILD_THIRD_PARTIES)
         # Check if git is present
         find_package(Git REQUIRED QUIET)
 
+        if(NOT EXISTS  ${CMAKE_CURRENT_SOURCE_DIR}/third_party/opencv)
+            message("Downloading Of OpenCV's Legacy Modules.")
 
-        message("Downloading Of OpenCV's Legacy Modules.")
-
-        # Download the OpenCV's Legacy modules.
-        # From these modultes we are going to compile
-        # opencv_core
-        # opencv_imgproc
-        # opencv_imgcodecs
-        # opencv_highgui
-        execute_process(
-            COMMAND ${GIT_EXECUTABLE} clone -b 4.8.0 https://github.com/opencv/opencv
-            WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/third_party"
-            RESULT_VARIABLE download_ocv_legacy_result
-            COMMAND_ERROR_IS_FATAL ANY
-            OUTPUT_QUIET
-            ERROR_QUIET
-            COMMAND_ECHO NONE
-        )
+            # Download the OpenCV's Legacy modules.
+            # From these modultes we are going to compile
+            # opencv_core
+            # opencv_imgproc
+            # opencv_imgcodecs
+            # opencv_highgui
+            execute_process(
+                COMMAND ${GIT_EXECUTABLE} clone -b 4.8.0 https://github.com/opencv/opencv
+                WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/third_party"
+                RESULT_VARIABLE download_ocv_legacy_result
+                COMMAND_ERROR_IS_FATAL ANY
+                OUTPUT_QUIET
+                ERROR_QUIET
+                COMMAND_ECHO NONE
+            )
         message("OpenCV's Legacy Modules Were Successfuly Downloaded!\n")
+        endif()
 
+        if(NOT EXISTS  ${CMAKE_CURRENT_SOURCE_DIR}/third_party/opencv_contrib)
+            message("Downloading Of OpenCV's Contribution Modules.")
 
-
-        message("Downloading Of OpenCV's Contribution Modules.")
-
-        # Download the OpenCV's Contribution modules.
-        # From these modultes we are going to compile
-        # opencv_quality
-        # opencv_cudaarithm
-        # opencv_cudafilter
-        execute_process(
-            COMMAND ${GIT_EXECUTABLE} clone -b 4.8.0 https://github.com/opencv/opencv_contrib
-            WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/third_party"
-            RESULT_VARIABLE download_ocv_contrib_result
-            COMMAND_ERROR_IS_FATAL ANY
-            OUTPUT_QUIET
-            ERROR_QUIET
-            COMMAND_ECHO NONE
-        )
+            # Download the OpenCV's Contribution modules.
+            # From these modultes we are going to compile
+            # opencv_quality
+            # opencv_cudaarithm
+            # opencv_cudafilter
+            execute_process(
+                COMMAND ${GIT_EXECUTABLE} clone -b 4.8.0 https://github.com/opencv/opencv_contrib
+                WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/third_party"
+                RESULT_VARIABLE download_ocv_contrib_result
+                COMMAND_ERROR_IS_FATAL ANY
+                OUTPUT_QUIET
+                ERROR_QUIET
+                COMMAND_ECHO NONE
+            )
         message("OpenCV's Contribution Modules Were Successfuly Downloaded!\n")
-
+        endif()
 
         # Create the folders needed for the compilation and deployment.
+
+        if(EXISTS ${CMAKE_CURRENT_SOURCE_DIR}/third_party/bin)
+            file(REMOVE_RECURSE ${CMAKE_CURRENT_SOURCE_DIR}/third_party/bin)
+        endif()
+
+        if(EXISTS ${CMAKE_CURRENT_SOURCE_DIR}/third_party/deploy)
+            file(REMOVE_RECURSE ${CMAKE_CURRENT_SOURCE_DIR}/third_party/deploy)
+        endif()
+
         file(MAKE_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/third_party/bin)
         file(MAKE_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/third_party/deploy)
 
@@ -245,7 +261,6 @@ if(BUILD_THIRD_PARTIES)
         foreach(ARCHITECTURE IN LISTS GPU_ARCHITECTURES)
             list(APPEND LOCAL_CUDA_ARCHITECTURES ${ARCHITECTURE})
         endforeach()
-
 
 
         list(APPEND CMAKE_ARGS_LIST " -DCMAKE_INSTALL_PREFIX=${CMAKE_CURRENT_SOURCE_DIR}/third_party/deploy")
@@ -602,5 +617,4 @@ endif()
         POST_BUILD
         COMMAND ${CMAKE_COMMAND} -E echo "libgpa.so was built successfully."
     )
-
 

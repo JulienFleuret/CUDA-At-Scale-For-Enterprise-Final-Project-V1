@@ -1,17 +1,17 @@
 project(samples)
 
-file(GLOB SOURCES "../samples_gpa_lib/*")
+file(GLOB SOURCES "../gpa/*")
 
 
-if(NOT EXISTS ${CMAKE_CURRENT_SOURCE_DIR}/../samples_gpa_lib/third_party)
+if(NOT EXISTS ${CMAKE_CURRENT_SOURCE_DIR}/../gpa/third_party)
     set(OCV_SAMPLE_DATA "")
     set(MANDATORY_PATH true)
     set(MAKE_PATH_MADATORY @)
 else()
-    set(DEPLOY_DIR_PATH "${CMAKE_CURRENT_SOURCE_DIR}/../samples_gpa_lib/third_party/deploy")
+    set(DEPLOY_DIR_PATH "${CMAKE_CURRENT_SOURCE_DIR}/../gpa/third_party/deploy")
     set(OpenCV_DIR ${DEPLOY_DIR_PATH}/lib/cmake/opencv4)
 
-    set(OCV_SAMPLE_DATA ${CMAKE_CURRENT_SOURCE_DIR}/../samples_gpa_lib/third_party/opencv/samples/data)
+    set(OCV_SAMPLE_DATA ${CMAKE_CURRENT_SOURCE_DIR}/../gpa/third_party/opencv/samples/data)
     set(MANDATORY_PATH false)
     set(MAKE_PATH_MADATORY )
 

@@ -9,4 +9,8 @@ num_cores=$(nproc)
 num_threads=$(($num_cores * 2 / 3))
 
 
-mkdir build && cd build && cmake .. && make -j$num_threads
+if [ ! -d "build" ]; then
+mkdir build
+fi
+
+cd build && cmake .. && make -j$num_threads
