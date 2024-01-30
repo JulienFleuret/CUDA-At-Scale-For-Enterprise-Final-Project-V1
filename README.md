@@ -3,7 +3,7 @@ This project is my first endeavor developed for the final evaluation of Coursera
 
 ## Project Description
 
-The focal point of this project revolves around the work of Chaudhury et al.: [Fast and Provably Accurate Bilateral Filtering](https://paperswithcode.com/paper/fast-and-provably-accurate-bilateral/review/). The authors' original MATLAB implementation can be found [here](https://www.mathworks.com/matlabcentral/fileexchange/56158-fast-and-accurate-bilateral-filtering).
+The focal point of this project revolves around the work of `Chaudhury et al.`: [Fast and Provably Accurate Bilateral Filtering](https://paperswithcode.com/paper/fast-and-provably-accurate-bilateral/review/). The authors' original MATLAB implementation can be found [here](https://www.mathworks.com/matlabcentral/fileexchange/56158-fast-and-accurate-bilateral-filtering).
 
 My contributions include the implementation of four distinct versions of this algorithm. To meet the criteria for NPPI and CUDA kernel utilization, I developed two separate versions, each tailored to NPPI and CUDA. Additionally, I created two versions using OpenCV—one for CPU which can also benefit from the TAPI and the other leveraging OpenCV's CUDA modules. The TAPI (Transparent API) integrates OpenCL, allowing the two functions I implemented to offer three interfaces: CPU-only, GPU using OpenCL, and CUDA.
 
